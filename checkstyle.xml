@@ -36,6 +36,7 @@
             <property name="format" value="\.printStackTrace"/>
         </module>
         <!-- Deprecated DynamoDB paramters -->
+        <!-- 
         <module name="RegexpSinglelineJava">
             <property name="format" value="setKeyConditions"/>
         </module>
@@ -54,6 +55,6 @@
         <module name="RegexpSinglelineJava">
             <property name="format" value="withScanFilter"/>
         </module>
-        
+         -->
     </module>
 </module>
