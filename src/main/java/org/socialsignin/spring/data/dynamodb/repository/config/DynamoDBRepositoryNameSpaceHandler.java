@@ -15,7 +15,7 @@
  */
 package org.socialsignin.spring.data.dynamodb.repository.config;
 
-import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
+import org.socialsignin.spring.data.dynamodb.config.DynamoDBNamespaceHandler;
 import org.springframework.data.repository.config.RepositoryBeanDefinitionParser;
 import org.springframework.data.repository.config.RepositoryConfigurationExtension;
 
@@ -24,7 +24,7 @@ import org.springframework.data.repository.config.RepositoryConfigurationExtensi
  * 
  * @author Michael Lavelle
  */
-public class DynamoDBRepositoryNameSpaceHandler extends NamespaceHandlerSupport {
+public class DynamoDBRepositoryNameSpaceHandler extends DynamoDBNamespaceHandler {
 
 	/*
 	 * (non-Javadoc)
@@ -37,5 +37,7 @@ public class DynamoDBRepositoryNameSpaceHandler extends NamespaceHandlerSupport 
 		RepositoryBeanDefinitionParser repositoryBeanDefinitionParser = new RepositoryBeanDefinitionParser(extension);
 
 		registerBeanDefinitionParser("repositories", repositoryBeanDefinitionParser);
+
+		super.init();
 	}
 }
