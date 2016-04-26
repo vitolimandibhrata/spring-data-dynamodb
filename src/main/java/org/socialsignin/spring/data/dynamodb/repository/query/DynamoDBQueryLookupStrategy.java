@@ -20,7 +20,6 @@ import java.lang.reflect.Method;
 
 import org.socialsignin.spring.data.dynamodb.core.DynamoDBOperations;
 import org.springframework.data.projection.ProjectionFactory;
-import org.springframework.data.projection.SpelAwareProxyProjectionFactory;
 import org.springframework.data.repository.core.NamedQueries;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.query.QueryLookupStrategy;
@@ -66,11 +65,11 @@ public class DynamoDBQueryLookupStrategy {
 		@Override
         public final RepositoryQuery resolveQuery(Method method, RepositoryMetadata metadata, ProjectionFactory factory, NamedQueries namedQueries) {
 
-			return createDynamoDBQuery(method, metadata, metadata.getDomainType(), metadata.getIdType(), namedQueries);
+			return createDynamoDBQuery(method, metadata, metadata.getDomainType(), metadata.getIdType(), factory, namedQueries);
 		}
 
 		protected abstract <T, ID extends Serializable> RepositoryQuery createDynamoDBQuery(Method method,
-				RepositoryMetadata metadata, Class<T> entityClass, Class<ID> idClass, NamedQueries namedQueries);
+				RepositoryMetadata metadata, Class<T> entityClass, Class<ID> idClass, ProjectionFactory factory, NamedQueries namedQueries);
 	}
 
 	/**
@@ -87,9 +86,9 @@ public class DynamoDBQueryLookupStrategy {
 
 		@Override
 		protected <T, ID extends Serializable> RepositoryQuery createDynamoDBQuery(Method method, RepositoryMetadata metadata,
-				Class<T> entityClass, Class<ID> idClass, NamedQueries namedQueries) {
+				Class<T> entityClass, Class<ID> idClass, ProjectionFactory factory, NamedQueries namedQueries) {
 			try {
-				return new PartTreeDynamoDBQuery<T, ID>(dynamoDBOperations, new DynamoDBQueryMethod<T, ID>(method, metadata, new SpelAwareProxyProjectionFactory()));
+				return new PartTreeDynamoDBQuery<T, ID>(dynamoDBOperations, new DynamoDBQueryMethod<T, ID>(method, metadata, factory));
 			} catch (IllegalArgumentException e) {
 				throw new IllegalArgumentException(String.format("Could not create query metamodel for method %s!",
 						method.toString()), e);
@@ -113,7 +112,7 @@ public class DynamoDBQueryLookupStrategy {
 
 		@Override
 		protected <T, ID extends Serializable> RepositoryQuery createDynamoDBQuery(Method method, RepositoryMetadata metadata,
-				Class<T> entityClass, Class<ID> idClass, NamedQueries namedQueries) {
+				Class<T> entityClass, Class<ID> idClass, ProjectionFactory factory, NamedQueries namedQueries) {
 			throw new UnsupportedOperationException("Declared Queries not supported at this time");
 		}
 
@@ -121,7 +120,7 @@ public class DynamoDBQueryLookupStrategy {
 
 	/**
 	 * {@link QueryLookupStrategy} to try to detect a declared query first (
-	 * {@link org.springframework.data.jpa.repository.Query}. In case none is
+	 * { @link org.springframework.data.jpa.repository.Query}. In case none is
 	 * found we fall back on query creation.
 	 *
 	 * @author Michael Lavelle
@@ -140,13 +139,13 @@ public class DynamoDBQueryLookupStrategy {
 
 		@Override
 		protected <T, ID extends Serializable> RepositoryQuery createDynamoDBQuery(Method method, RepositoryMetadata metadata,
-				Class<T> entityClass, Class<ID> idClass, NamedQueries namedQueries) {
+				Class<T> entityClass, Class<ID> idClass, ProjectionFactory factory, NamedQueries namedQueries) {
 			try {
-				return strategy.createDynamoDBQuery(method, metadata, entityClass, idClass, namedQueries);
+				return strategy.createDynamoDBQuery(method, metadata, entityClass, idClass, factory, namedQueries);
 			} catch (IllegalStateException e) {
-				return createStrategy.createDynamoDBQuery(method, metadata, entityClass, idClass, namedQueries);
+				return createStrategy.createDynamoDBQuery(method, metadata, entityClass, idClass, factory, namedQueries);
 			} catch (UnsupportedOperationException e) {
-				return createStrategy.createDynamoDBQuery(method, metadata, entityClass, idClass, namedQueries);
+				return createStrategy.createDynamoDBQuery(method, metadata, entityClass, idClass, factory, namedQueries);
 			}
 
 		}
